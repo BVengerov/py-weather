@@ -1,11 +1,15 @@
-import sys
+#!/usr/bin/env python3
 
+import sys
+import click
+import urllib.parse
 import requests
 
 
-def search_weather(address):
-    print("You're searching the weather in {}.".format(address))
-    import urllib.parse
+@click.command()
+@click.argument('address')
+def get_weather(address):
+    """GET WEATHER APP"""
 
     url = 'https://nominatim.openstreetmap.org/search/{}?format=json'.format(urllib.parse.quote(address))
     response = requests.get(url).json()
@@ -22,4 +26,4 @@ def search_weather(address):
 
 
 if __name__ == '__main__':
-    search_weather(sys.argv[1])
+    get_weather()
