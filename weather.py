@@ -24,19 +24,33 @@ def get_coordinates(address: str) -> tuple:
     return round(float(latitude), 4), round(float(longitude), 4)
 
 
-def parse_current_weather(results):
-    print(results)
+def print_current_weather(results):
+    timeserie = results['properties']['timeseries'][0]
+    forecast_time = timeserie['time']
+    weather = timeserie['data']['instant']['details']
+    temp = weather['air_temperature']
+    humidity = weather['relative_humidity']
+    wind_speed = weather['wind_speed']
+    report = '''Current weather conditions: \n
+        Temperature: {}C
+        Humidity: {}
+        Wind speed: {}
+        Weather got at {}
+    '''.format(
+        temp, humidity, wind_speed, forecast_time
+    )
+    print(report)
 
 
 def get_weather(address: str):
     """GET WEATHER APP"""
 
-    response = requests.get('https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={}&lon={}'.format(
+    response = requests.get('https://api.met.no/weatherapi/locationforecast/2.0/complete?lat={}&lon={}'.format(
         *get_coordinates(address)
     ))
 
     response.raise_for_status()
-    print(parse_current_weather(response.json()))
+    print_current_weather(response.json())
     # print(parse_close_weather(response.json()))
     # print(parse_farther_weather(response.json()))
 
