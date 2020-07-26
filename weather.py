@@ -7,13 +7,20 @@ import requests
 
 def get_coordinates(address: str) -> tuple:
     if not address:
-        print('Getting location for current position')
-        r = requests.get('https://api.ipdata.co?api-key=test').json()
-        latitude, longitude = r['latitude'], r['longitude']
+        print('Getting location for the current position...')
+        response = requests.get('https://api.ipdata.co?api-key=test')
+        response.raise_for_status()
+        payload = response.json()
+        latitude, longitude = payload['latitude'], payload['longitude']
     else:
+        headers = {
+            'User-Agent': 'py-weather github.com/BVengerov/py-weather',
+        }
         url = 'https://nominatim.openstreetmap.org/search/{}?format=json'.format(urllib.parse.quote(address))
-        response = requests.get(url).json()
-        latitude, longitude = response[0]["lat"], response[0]["lon"]
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        payload = response.json()
+        latitude, longitude = payload[0]["lat"], payload[0]["lon"]
     return round(float(latitude), 4), round(float(longitude), 4)
 
 
@@ -24,13 +31,14 @@ def parse_current_weather(results):
 def get_weather(address: str):
     """GET WEATHER APP"""
 
-    result = requests.get('https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={}&lon={}'.format(
+    response = requests.get('https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={}&lon={}'.format(
         *get_coordinates(address)
     ))
 
-    print(parse_current_weather(result.json()))
-    # print(parse_close_weather(result.json()))
-    # print(parse_farther_weather(result.json()))
+    response.raise_for_status()
+    print(parse_current_weather(response.json()))
+    # print(parse_close_weather(response.json()))
+    # print(parse_farther_weather(response.json()))
 
 
 if __name__ == '__main__':
