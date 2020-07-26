@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
-import click
 import urllib.parse
 import requests
 
 
-@click.command()
-@click.argument('address')
 def get_weather(address):
     """GET WEATHER APP"""
 
@@ -26,4 +23,4 @@ def get_weather(address):
 
 
 if __name__ == '__main__':
-    get_weather()
+    get_weather(sys.argv[1])
