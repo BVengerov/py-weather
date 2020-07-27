@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import json
+import arrow
 import sys
 import urllib.parse
 import requests
 
 
-def get_coordinates(address: str) -> tuple:
-    if not address:
+def get_coordinates(address_input: str) -> tuple:
+    if not address_input:
         print('Getting location for the current position...')
         response = requests.get('https://api.ipdata.co?api-key=test')
         response.raise_for_status()
@@ -16,7 +16,7 @@ def get_coordinates(address: str) -> tuple:
         headers = {
             'User-Agent': 'py-weather github.com/BVengerov/py-weather',
         }
-        url = 'https://nominatim.openstreetmap.org/search/{}?format=json'.format(urllib.parse.quote(address))
+        url = 'https://nominatim.openstreetmap.org/search/{}?format=json'.format(urllib.parse.quote(address_input))
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         payload = response.json()
@@ -25,19 +25,24 @@ def get_coordinates(address: str) -> tuple:
 
 
 def print_current_weather(results):
+    units = results['properties']['meta']['units']
+    print(units)
     timeserie = results['properties']['timeseries'][0]
-    forecast_time = timeserie['time']
+    forecast_time = arrow.get(timeserie['time']).humanize()
     weather = timeserie['data']['instant']['details']
-    temp = weather['air_temperature']
-    humidity = weather['relative_humidity']
-    wind_speed = weather['wind_speed']
-    report = '''Current weather conditions: \n
-        Temperature: {}C
+    temp = str(weather['air_temperature']) + ' ' + units['air_temperature']
+    pressure = str(weather['air_pressure_at_sea_level']) + ' ' + units['air_pressure_at_sea_level']
+    humidity = str(weather['relative_humidity']) + ' ' + units['relative_humidity']
+    wind_speed = str(weather['wind_speed']) + ' ' + units['wind_speed']
+    report = '''
+    Current weather conditions:
+        Temperature: {}
+        Air pressure: {}
         Humidity: {}
         Wind speed: {}
-        Weather got at {}
+        Weather report obtained {}.
     '''.format(
-        temp, humidity, wind_speed, forecast_time
+        temp, pressure, humidity, wind_speed, forecast_time
     )
     print(report)
 
