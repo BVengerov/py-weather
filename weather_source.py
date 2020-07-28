@@ -1,9 +1,10 @@
 import requests
+from weather_report import WeatherReport
 
 
 class WeatherAPI:
     @classmethod
-    def get_current_forecast(cls, longitude, latitude):
+    def get_weather_report(cls, longitude, latitude):
         headers = {
             'User-Agent': 'py-weather github.com/BVengerov/py-weather',
         }
@@ -11,4 +12,4 @@ class WeatherAPI:
             round(float(longitude), 4), round(float(latitude), 4)
         ), headers=headers)
         response.raise_for_status()
-        return response.json()
+        return WeatherReport(response.json())
