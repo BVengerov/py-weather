@@ -1,7 +1,7 @@
 import re
 from collections import namedtuple
 from geolocation import Geolocation
-from typing import NamedTuple
+import arrow
 
 
 class Station:
@@ -15,6 +15,7 @@ class TimeSerie:
     def __init__(self, timeserie, units):
         self.time = timeserie['time']
 
+        # parsing and saving weather parameters of this timeserie
         data = timeserie['data']
         WeatherParameter = namedtuple('WeatherParameter', ['value', 'unit'])
         data_instant = data['instant']['details']
@@ -23,15 +24,20 @@ class TimeSerie:
             params[name] = WeatherParameter(data_instant[name], units[name])
         self.params = params
 
+        # parsing and saving forecast estimations for this timeserie
         Forecast = namedtuple('Forecast', ['period', 'summary_symbol', 'params'])
         data_forecasts = timeserie['data']
         del data_forecasts['instant']
         forecasts = []
         for forecast_period in data_forecasts:
+            # forecast params are not constant, and not always present at all
             forecast_params = {}
             if 'details' in data_forecasts[forecast_period]:
                 for name in data_forecasts[forecast_period]['details']:
-                    forecast_params[name] = WeatherParameter(data_forecasts[forecast_period]['details'][name], units[name])
+                    forecast_params[name] = WeatherParameter(
+                        data_forecasts[forecast_period]['details'][name],
+                        units[name]
+                    )
             forecasts.append(Forecast(
                 int(re.sub(r"\D", "", forecast_period)),
                 data_forecasts[forecast_period]['summary']['symbol_code'],
@@ -40,6 +46,7 @@ class TimeSerie:
         self.forecasts = sorted(forecasts, key=lambda forecast: forecast.period)
 
     def get_param_hr(self, parameter_name):
+        """Return human-readable parameter information: value with measurement units."""
         return "{} {}".format(self.params[parameter_name].value, self.params[parameter_name].unit)
 
 
@@ -52,17 +59,7 @@ class WeatherReport:
             for ts_data in json_payload['properties']['timeseries']
         ]
 
-
-    def __str__(self):
-
-        # timeserie = results['properties']['timeseries'][0]
-        # forecast_time = arrow.get(timeserie['time']).humanize()
-        # weather = timeserie['data']['instant']['details']
-        # temp = str(weather['air_temperature']) + ' ' + units['air_temperature']
-        # pressure = str(weather['air_pressure_at_sea_level']) + ' ' + units['air_pressure_at_sea_level']
-        # humidity = str(weather['relative_humidity']) + ' ' + units['relative_humidity']
-        # wind_speed = str(weather['wind_speed']) + ' ' + units['wind_speed']
-        #
+    def printable_report_current(self):
         timeserie = self.timeseries[0]
         return '''
         Current weather conditions:
@@ -79,5 +76,5 @@ class WeatherReport:
             timeserie.get_param_hr('wind_speed'),
             self.station.name,
             self.station.location.altitude,
-            timeserie.time
+            arrow.get(timeserie.time).humanize()
         )
