@@ -1,0 +1,1 @@
+docker run --rm -v "$PWD:/py-weather" weather python3 /py-weather/app/main.py "$@"

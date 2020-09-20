@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import sys
-from geolocation import Geolocation
-from weather_source import WeatherAPI
+
+from app.geolocation.geolocation import Geolocation
+from app.source.weather_source import WeatherAPI
 
 
 def get_weather(address: str):
@@ -12,6 +13,7 @@ def get_weather(address: str):
         longitude, latitude = Geolocation.get_coordinates_by_ip()
     weather_report = WeatherAPI.get_weather_report(longitude, latitude)
     print(weather_report.printable_report_current())
+    print(weather_report.printable_temp_chart())
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 import requests
-from weather_report import WeatherReport
+from app.report.weather_report import WeatherReport
 
 
 class WeatherAPI:

@@ -1,7 +1,14 @@
 import re
 from collections import namedtuple
-from geolocation import Geolocation
+from app.geolocation.geolocation import Geolocation
 import arrow
+
+
+class ParameterNames:
+    air_temp = 'air_temperature'
+    air_pressure = 'air_pressure_at_sea_level'
+    humidity = 'relative_humidity'
+    wind_speed = 'wind_speed'
 
 
 class Station:
@@ -59,6 +66,21 @@ class WeatherReport:
             for ts_data in json_payload['properties']['timeseries']
         ]
 
+    def printable_temp_chart(self):
+        times, temps = [], []
+        for timeserie in self.timeseries:
+            times.append(arrow.get(timeserie.time).to('local').format('HH:mm'))
+            temps.append(timeserie.params[ParameterNames.air_temp].value)
+        return '''
+        Temperature chart for {}:
+        | Time |{}
+        | Temp |{}
+        '''.format(
+            self.station.name,
+            " |".join(" {}".format(t) for t in times),
+            "  |".join(" {}".format(t) for t in temps),
+        )
+
     def printable_report_current(self):
         timeserie = self.timeseries[0]
         return '''
@@ -70,10 +92,10 @@ class WeatherReport:
             Station: {} [{} m]
             Weather report obtained {}.
         '''.format(
-            timeserie.get_param_hr('air_temperature'),
-            timeserie.get_param_hr('air_pressure_at_sea_level'),
-            timeserie.get_param_hr('relative_humidity'),
-            timeserie.get_param_hr('wind_speed'),
+            timeserie.get_param_hr(ParameterNames.air_temp),
+            timeserie.get_param_hr(ParameterNames.air_pressure),
+            timeserie.get_param_hr(ParameterNames.humidity),
+            timeserie.get_param_hr(ParameterNames.wind_speed),
             self.station.name,
             self.station.location.altitude,
             arrow.get(timeserie.time).humanize()
