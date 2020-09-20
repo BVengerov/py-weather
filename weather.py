@@ -12,6 +12,7 @@ def get_weather(address: str):
         longitude, latitude = Geolocation.get_coordinates_by_ip()
     weather_report = WeatherAPI.get_weather_report(longitude, latitude)
     print(weather_report.printable_report_current())
+    print(weather_report.printable_temp_chart())
 
 
 if __name__ == '__main__':
