@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import sys
-from geolocation import Geolocation
-from weather_source import WeatherAPI
+
+from app.geolocation.geolocation import Geolocation
+from app.source.weather_source import WeatherAPI
 
 
 def get_weather(address: str):

@@ -1,6 +1,6 @@
 import re
 from collections import namedtuple
-from geolocation import Geolocation
+from app.geolocation.geolocation import Geolocation
 import arrow
 
 
