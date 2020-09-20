@@ -8,5 +8,3 @@ WORKDIR /
 RUN pip3 install -r requirements.txt
 
 ENV PYTHONPATH /
-ENTRYPOINT [ "python3" ]
-CMD [ "app/main.py" ]

@@ -1,0 +1,1 @@
+docker run --rm weather python3 /app/main.py "$@"
